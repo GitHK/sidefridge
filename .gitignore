@@ -1,0 +1,4 @@
+.idea/
+*.pyc
+example_scripts/
+*.egg-info/
