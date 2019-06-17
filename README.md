@@ -5,8 +5,19 @@
 Use environment variables to configure this container as a sidecar for backup.
 
 - **CRON_BACKUP_SCHEDULE** configuration
-- **PARENT_CONTAINER** specify the k8s container name in which commands must be run
+- **TARGET_CONTAINER** specify the k8s container name in which commands must be run
+- **POD_NAME** must defile an environment variable containing the pod's name.
 
+Use the following:
+    
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+refer to [Expose Pod Information to Containers Through Environment 
+Variables](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/#use-pod-fields-as-values-for-environment-variables):
 
 ### Scripting extras
 

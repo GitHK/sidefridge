@@ -1,5 +1,4 @@
 import argparse
-import datetime
 import os
 import subprocess
 import sys
@@ -7,21 +6,15 @@ import sys
 from croniter import croniter
 
 from sidefridge.scripts import ScriptsDetector
+from sidefridge.utils import print_logger
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 
 CRON_BACKUP_SCHEDULE = "CRON_BACKUP_SCHEDULE"
 
-#  /proc/1/fd/1 2> /proc/1/fd/2
 CRON_TEMPLATE = """%s fridge -r
 # remember to end this file with an empty new line
 """
-
-
-def print_logger(message, date_format='%m/%d/%Y %H:%M:%S'):
-    """ We need to use print in order to avoid problems of misalignment between logging and  sys.stdout.write"""
-    log_message = "[{date}] {message}".format(date=datetime.datetime.now().strftime(date_format), message=message)
-    print(log_message)
 
 
 class SubprocessErrorDuringExecutionException(Exception):
