@@ -7,9 +7,6 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
 
-# copy scripts for frige
-COPY example_scripts /scripts
-
 COPY sidefridge /app/sidefridge
 COPY setup.py /app
 

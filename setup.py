@@ -13,7 +13,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'fridge = sidefridge.main:main'
+            'fridge = sidefridge.main:main',
+            'kubectlexec = sidefridge.kubectlexec:main'
         ]
     }
 )
