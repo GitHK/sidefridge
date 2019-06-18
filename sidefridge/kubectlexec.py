@@ -22,8 +22,8 @@ def run_in_container(command):
     Will execute a given command in a container like `ls -la`
     """
     kubectl_command = "kubectl exec -it {pod} -c {container} {command}".format(
-        pod=os.environ["POD_NAME"],
-        container=os.environ["PARENT_CONTAINER"],
+        pod=os.environ[POD_NAME],
+        container=os.environ[TARGET_CONTAINER],
         command=command
     )
 
