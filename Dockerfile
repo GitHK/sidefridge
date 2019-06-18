@@ -14,6 +14,9 @@ RUN mkdir -p /scripts/before_backups
 RUN mkdir -p /scripts/after_backups
 RUN mkdir -p /scripts/on_error
 
+# Path where to mount secrets
+RUN mkdir -p /secrets
+
 COPY sidefridge /app/sidefridge
 COPY setup.py /app
 
