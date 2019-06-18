@@ -39,7 +39,14 @@ def main():
         print_logger("Could not find '%s' in the environment variables" % POD_NAME)
         exit(1)
 
-    run_command("ls -la")
+    cli_arguments = sys.argv[1:]
+
+    if len(cli_arguments) < 1:
+        print_logger("You must provide a command to be executed in the target container")
+        exit(1)
+
+    command = " ".join(cli_arguments)
+    run_in_container(command)
 
 
 if __name__ == '__main__':
