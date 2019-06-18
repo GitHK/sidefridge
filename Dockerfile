@@ -6,7 +6,13 @@ RUN apk update && apk add curl bash
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin
-RUN mkdir -p /scripts
+
+# Create directory structure
+RUN mkdir -p /scripts/install_dependencies
+RUN mkdir -p /scripts/backups
+RUN mkdir -p /scripts/before_backups
+RUN mkdir -p /scripts/after_backups
+RUN mkdir -p /scripts/on_error
 
 COPY sidefridge /app/sidefridge
 COPY setup.py /app

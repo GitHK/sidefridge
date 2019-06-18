@@ -1,12 +1,22 @@
 # sidefridge
 
-### Configuration
+A kubernetes sidecar backup container. Manage dependencies and backups via bash or sh scripts.
 
-Use environment variables to configure this container as a sidecar for backup.
+## Getting started
 
-- **CRON_BACKUP_SCHEDULE** configuration
-- **TARGET_CONTAINER** specify the k8s container name in which commands must be run
-- **POD_NAME** must defile an environment variable containing the pod's name.
+There are a couple of configurations which need to be met in order to have a working backup container:
+
+- define environment variables: cron schedule, pod name and target container
+- define hooks: install script and backup script
+
+
+### Environment
+
+The following variables are mandatory:
+
+- **CRON_BACKUP_SCHEDULE** configure cron job schedule
+- **TARGET_CONTAINER** specify the kubernetes container name in which commands must be run
+- **POD_NAME** must defile an environment variable containing the pod's name
 
 Use the following:
     
@@ -19,17 +29,22 @@ Use the following:
 refer to [Expose Pod Information to Containers Through Environment 
 Variables](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/#use-pod-fields-as-values-for-environment-variables):
 
-### Scripting extras
+Full env configuration example, runs backup every minute:
 
-To execute commands in a target container inside the same pod use `kubectlexec` command 
-followed by the command you want to run. For example
-
-    kubectlexec npm run backup
+    env:
+    - name: CRON_BACKUP_SCHEDULE
+      value: "* * * * *"
+    - name: TARGET_CONTAINER
+      value: "example-production-app"
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
 
 
 ### Lifecycle hooks
 
-Hooks are `bash` or `sh` scripts which are started at given moments in the app's lifecycle.
+Hooks are `bash` or `sh` scripts which are triggered at given moments in the app's lifecycle.
 
 Available hooks:
 
@@ -39,53 +54,61 @@ Available hooks:
 - **after_backups** (called after all backup scripts)
 - **on_error** (if an error occurs, exit code different then 0, this is invoked, it will not trigger on error once again)
 
-Hooks directory structure:
+The container expects all hooks to be placed inside the `/scripts` directory with a structure similar to the following:
 
     /scripts
-        - install_dependencies/
-        - backups/
-        - before_backups/
-        - after_backups/
-        - on_error/
+      install_dependencies/
+        install1.sh
+        install2.sh
+      backups/
+        bkp1.sh
+        bkp2.sh
+      before_backups/
+        before_backup.sh
+      after_backups/
+        after_bkup.sh
+      on_error/
+        errorz.sh
 
-Base script example 1:
+Script names do not matter, all available files are interpreted as scripts. If multiple scripts are
+defined under the same hook, lexicographic ordering is used to determine execution order.
+
+**Examples**
+
+The following install script named `install.sh` will install mongodb to have access to the mongodump utility:
 
     #!/bin/sh
     
-    echo "Hellow world"
+    apk add mongodb
     
-Base script example 2:
+    
+it must be placed in the following path: `/scripts/install_dependencies/install.sh`
+
+    
+To backup the database simply define a `bkp` script like this one:
 
     #!/bin/bash
     
-    echo "Hellow world"         
-
-
-Cron is used to schedule backups which will run locally in the container environment.
-
-Should have a service responsible for showing the details of operations and if the backups went ok (exit codes)
-
-
-Create a directory called “/scripts” where all scripts need to be mounted, and where all scripts are executed
-
-
-### CRON
-
-Run a process to configure cron from enviornment variables set on the contaienr
-
-start the python script which watches for schedules, start cronjob, maybe only cron is sufficient
-
-
-# Example command
-
-Run this for development:
-
-    clear && CRON_BACKUP_SCHEDULE="* * * * *" fridge -i -r -c cronjob -s example_scripts
+    mongodump --out /data/backup/
     
-    
-# Docker
+it must be placed in the following path: `/scripts/backups/bkp`
 
-Build image
+
+### Scripting extras
+
+To execute commands in a TARGET_CONTAINER inside the same pod use `kubectlexec` command in your scripts
+followed by the command you want to run. For example, if you need to run `python backup.py`in TARGET_CONTAINER:
+
+    kubectlexec python backup.py
+
+The command will be executed via kubectl in the specified container from this container.
+
+
+# Development
+
+To ease your life during development the following may be useful.
+
+Build image:
 
     docker build -t sidefridge .
 
