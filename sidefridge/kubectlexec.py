@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 
 from sidefridge.utils import print_logger
@@ -8,26 +7,19 @@ TARGET_CONTAINER = "TARGET_CONTAINER"
 POD_NAME = "POD_NAME"
 
 
-def run_command(command):
-    """ Run commands on host """
-    process = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE)
-    for c in iter(lambda: process.stdout.read(1), b''):
-        sys.stdout.write(c.decode('utf-8'))
-
-    process.communicate()
-
-
 def run_in_container(command):
     """
     Will execute a given command in a container like `ls -la`
     """
-    kubectl_command = "kubectl exec -it {pod} -c {container} {command}".format(
+
+    # subprocess was replaced, had issues with this; output is no longer steamed :\
+    kubectl_command = 'kubectl exec -it {pod} -c {container} -- /bin/sh -c "{command}"'.format(
         pod=os.environ[POD_NAME],
         container=os.environ[TARGET_CONTAINER],
         command=command
     )
 
-    run_command(kubectl_command)
+    os.system(kubectl_command)
 
 
 def main():
