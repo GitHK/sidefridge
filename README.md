@@ -293,14 +293,16 @@ Backup is a trivial task now.
 
 To ease your life during development the following may be useful.
 
-Build image:
+**Build image:**
 
     docker build -t sidefridge .
 
-Run image:
+**Run image:**
 
-    docker run --rm -it -e CRON_BACKUP_SCHEDULE="* * * * *" sidefridge 
+    docker run --rm -it -e CRON_BACKUP_SCHEDULE="* * * * *"  --name sidefridge sidefridge
+    
+You can now use `docker kill sidefridge` to kill the running image. 
 
-Run shell in container
+**Run shell in container:**
 
     docker run --rm -it -e CRON_BACKUP_SCHEDULE="* * * * *" sidefridge /bin/sh

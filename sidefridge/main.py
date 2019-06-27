@@ -25,9 +25,11 @@ class ScriptErrorOccurred(Exception):
     pass
 
 
-def run_single_script(script, skip_error=False):
+def run_single_script(script, skip_error=False, **kwargs):
     print_logger("Starting '%s'" % script)
-    process = subprocess.Popen(script, stdout=subprocess.PIPE)
+    cmd = [script] + list(kwargs.values())
+    print_logger(cmd)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     for c in iter(lambda: process.stdout.read(1), b''):
         sys.stdout.write(c.decode('utf-8'))
 
@@ -55,7 +57,7 @@ def run_scripts(scripts_detector, path, hook_name):
         print_logger(e)
         # run on_error callbacks and do not rejigger on_error
         for error_script in scripts_detector.on_error:
-            run_single_script(error_script, skip_error=True)
+            run_single_script(error_script, skip_error=True, error=str(e))
         raise ScriptErrorOccurred("Script execution finished due to errors. Look at logs for details")
 
 
@@ -68,7 +70,9 @@ def start_initialize(scripts_detector, cron_path):
     try:
         run_scripts(scripts_detector, scripts_detector.install_dependencies, 'install_dependencies')
     except ScriptErrorOccurred as e:
+        # int the dependency install phase it is important to fail and do not boot the container
         print_logger(e)
+        raise e
 
 
 def start_run(scripts_detector):
@@ -121,6 +125,7 @@ def main():
         exit(1)
 
     scripts_detector = ScriptsDetector(arguments.scripts_path)
+    scripts_detector.list_detected_scripts()
 
     if arguments.initialize:
         print_logger("Initializing...")

@@ -19,10 +19,11 @@ RUN mkdir -p /secrets
 
 COPY sidefridge /app/sidefridge
 COPY setup.py /app
+COPY start.sh /app
 
 WORKDIR /app
 
 RUN pip install -e .
 
 # start crond with log level 8 in foreground, output to stderr
-CMD ["sh", "-c", "fridge -i && crond -f -d 8"]
+CMD ["./start.sh"]
