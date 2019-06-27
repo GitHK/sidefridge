@@ -91,4 +91,4 @@ def load_var():
     arguments = parser.parse_args()
 
     data_dict = load_dict()
-    return data_dict.get(arguments.key, arguments.default)
+    print(data_dict.get(arguments.key, arguments.default))
