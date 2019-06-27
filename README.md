@@ -110,18 +110,20 @@ The command will be executed via kubectl in the specified container from this co
 #### storage
 
 Each time the cronjob schedules the backup scripts (before_backups, backups, after_backups, on_error) 
-a new key/value store is created to enable proper sharing of strings between scripts.    
+a new key/value store is created to enable proper sharing of strings between each individual script run.    
 
-**save_var** stores inside a given key a value, if the key aready exists it gets overwritten.
+- **save_var** stores inside a given key a value, if the key aready exists it gets overwritten.
 
-    $ save_var key value
+        $ save_var key value
 
-**load_var** loads the value of a given key, if no key is found an empty string is returned. If
+- **load_var** loads the value of a given key, if no key is found an empty string is returned. If
 the default value is provided it will be returned if the key is not found. 
 
-    $ load_var key [default]
+        $ load_var key [default]
 
-
+For example if inside the `before_backup/bafore.sh` a variable is saved like `save_var backup_file "BACKUP_2019_10_10"`.
+It is now usable in every script invocation, thus meaning that we can retrive the name of the backup file when an 
+error occurs and report it back in an `error/on_error.sh` script, via the `load_var backup_file` command.  
 
 # Kubernetes example
 
