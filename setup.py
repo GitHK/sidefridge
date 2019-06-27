@@ -14,7 +14,9 @@ setup(
     entry_points={
         'console_scripts': [
             'fridge = sidefridge.main:main',
-            'kubectlexec = sidefridge.kubectlexec:main'
+            'kubectlexec = sidefridge.kubectlexec:main',
+            'store_var = sidefridge.storage:store_var',
+            'load_var = sidefridge.storage:load_var'
         ]
     }
 )

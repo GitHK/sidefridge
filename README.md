@@ -96,12 +96,32 @@ it must be placed in the following path: `/scripts/backups/bkp`
 
 ### Scripting extras
 
+#### kubectlexec
+
 To execute commands in a TARGET_CONTAINER inside the same pod use `kubectlexec` command in your scripts
 followed by the command you want to run. For example, if you need to run `python backup.py`in TARGET_CONTAINER:
 
-    kubectlexec python backup.py
+    $ kubectlexec python backup.py
 
 The command will be executed via kubectl in the specified container from this container.
+
+
+
+#### storage
+
+Each time the cronjob schedules the backup scripts (before_backups, backups, after_backups, on_error) 
+a new key/value store is created to enable proper sharing of strings between scripts.    
+
+**save_var** stores inside a given key a value, if the key aready exists it gets overwritten.
+
+    $ save_var key value
+
+**load_var** loads the value of a given key, if no key is found an empty string is returned. If
+the default value is provided it will be returned if the key is not found. 
+
+    $ load_var key [default]
+
+
 
 # Kubernetes example
 

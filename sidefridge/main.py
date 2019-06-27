@@ -6,6 +6,7 @@ import sys
 from croniter import croniter
 
 from sidefridge.scripts import ScriptsDetector
+from sidefridge.storage import clear_storage
 from sidefridge.utils import print_logger
 
 HERE = os.path.dirname(os.path.realpath(__file__))
@@ -76,12 +77,16 @@ def start_initialize(scripts_detector, cron_path):
 
 
 def start_run(scripts_detector):
+    # always clean storage before and after usage, we do not want to leave unattended data between calls
+    clear_storage()
     try:
         run_scripts(scripts_detector, scripts_detector.before_backups, 'before_backups')
         run_scripts(scripts_detector, scripts_detector.backups, 'backups')
         run_scripts(scripts_detector, scripts_detector.after_backups, 'after_backups')
     except ScriptErrorOccurred as e:
         print_logger(e)
+    finally:
+        clear_storage()
 
 
 def main():
