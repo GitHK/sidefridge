@@ -102,7 +102,7 @@ def main():
         help='runs scrips following the lifecycle'
     )
     parser.add_argument(
-        '-s', '--scripts-path', default='/scripts',
+        '-csp', '--container-scripts-path', default='/scripts',
         help='path to scripts folder, default /scripts'
     )
     parser.add_argument(
@@ -121,15 +121,15 @@ def main():
         exit(1)
 
     # check if provided directory exists
-    if not os.path.isdir(arguments.scripts_path):
-        print_logger("The following path '%s' is not a valid directory" % arguments.scripts_path)
+    if not os.path.isdir(arguments.container_scripts_path):
+        print_logger("The following path '%s' is not a valid directory" % arguments.container_scripts_path)
         exit(1)
 
     if not arguments.initialize and not arguments.run:
         print_logger("Nothing to do.\nPlease run: 'fridge --help' to see possible options")
         exit(1)
 
-    scripts_detector = ScriptsDetector(arguments.scripts_path)
+    scripts_detector = ScriptsDetector(arguments.container_scripts_path)
     scripts_detector.list_detected_scripts()
 
     if arguments.initialize:

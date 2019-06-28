@@ -2,8 +2,8 @@
 
 set -e
 
-echo "Installing dependecies"
+echo "[Boot script] Installing dependecies"
 fridge -i
 
-echo "All ok running cron in foreground"
+echo "[Boot script] All ok running cron in foreground"
 crond -f -d 8

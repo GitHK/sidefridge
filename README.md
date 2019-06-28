@@ -125,7 +125,47 @@ For example if inside the `before_backup/bafore.sh` a variable is saved like `sa
 It is now usable in every script invocation, thus meaning that we can retrive the name of the backup file when an 
 error occurs and report it back in an `error/on_error.sh` script, via the `load_var backup_file` command.  
 
-# Kubernetes example
+# Creating k8s configurations
+
+Once you are happy with your backup scripts, you can now transform them into k8s configuration files and partial 
+configurations to be used when you setup your deployment.
+
+The utility to be used is bundled with this docker image and is called `make-k8s-cfg-files`:
+
+    make-k8s-cfg-files NAMESPACE PROJECT_NAME CONTAINER_NAME INPUT_DIR OUTPUT_DIR
+    
+where:
+
+- **NAMESPACE** contains the k8s namespace for your deployment
+- **PROJECT_NAME** is used to keep give a proper name to the generated k8s objects
+- **CONTAINER_NAME** is used to keep track in which container the k8s objects are used
+- **INPUT_DIR** directory containing your hooks
+- **OUTPUT_DIR** directory in which to output the generated files
+    
+
+Example usage with docker, if your hooks are placed inside `example_scripts` directory in the current path:
+
+     docker run --rm -it -v $(pwd)/example_scripts:/to_parse hubhk/sidefridge make-k8s-cfg-files test sample-app backup-sidecar /to_parse /to_parse
+     
+
+The output directory and the input directory are the same because I am lazy and do not want to mount two 
+different volumes. 
+
+The following files will be generated:
+
+- **sample-app-config-maps.yaml** contains the ConfigMaps which must be mounted in your container and should be
+ applied with `kubectl -f sample-app-config-maps.yaml` 
+- **sample-app-accounts.yaml** generates Role, RoleBinding and ServiceAccount needed to run commands in a 
+ separate container via the `kubectlexec` command; if you do not require this feature do not add this; should be
+ applied with `kubectl -f sample-app-accounts.yaml` 
+- **sample-app-partial_service_account_name_volumes.yaml** generates pieces of yaml to be placed inside your
+`hubhk/sidefridge` container. If you do not need `kubectlexec` remove the line containing the **serviceAccountName**
+- **sample-app-partial_volume_mounts.yaml** generates pieces of yaml to be placed inside the deployment where
+your **hubhk/sidefridge container** is placed 
+
+Each file is prefixed by its PROJECT_NAME.
+
+# k8s example
 
 The following is an example on how to configure your sidecar container.
 
@@ -147,7 +187,6 @@ The following manages the entire namespace, you may already be using something l
     metadata:
       name: example-full-access-service-account
       namespace: example
-    
     ---
     kind: Role
     apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -163,7 +202,6 @@ The following manages the entire namespace, you may already be using something l
           - jobs
           - cronjobs
         verbs: ["*"]
-    
     ---
     kind: RoleBinding
     apiVersion: rbac.authorization.k8s.io/v1beta1
