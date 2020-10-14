@@ -1,4 +1,4 @@
-FROM python:3.7.3-alpine
+FROM python:3.7.9-alpine
 
 RUN apk update && apk add curl bash
 
@@ -23,6 +23,7 @@ COPY start.sh /app
 
 WORKDIR /app
 
+RUN pip install --upgrade pip setuptools
 RUN pip install -e .
 
 # start crond with log level 8 in foreground, output to stderr
